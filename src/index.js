@@ -22,7 +22,6 @@ function HandleWorkerClick() {
 async function HandleCommunicateClick() {
     const worker = new Worker('workers/communicate.worker.js')
 
-
     worker.onmessage = ({data}) => {
         console.log(data)
         console.log(`data from worker ${data[0]}`)
@@ -31,17 +30,18 @@ async function HandleCommunicateClick() {
         if (data[1])
             worker.terminate()
     }
+
     for (let i = 0; i < 4; i++) {
         worker.postMessage(i)
         await sleep()
     }
+
     worker.postMessage(null)
 }
 
 function ButtonComponent() {
     const element = document.createElement('button')
     element.id = 'button'
-
     element.innerHTML = 'Click Me!'
     element.onclick = HandleClick
 
@@ -69,14 +69,13 @@ function ButtonCommunicateWorkerComponent() {
 function CounterComponent() {
     const element = document.createElement('div')
     element.id = 'counter'
-
     element.innerHTML = '1'
 
     setInterval(() => {
         const domElement = document.getElementById('counter')
         if (domElement) {
             let numInnerHtml = +domElement.innerHTML
-            domElement.innerHTML = ++numInnerHtml
+            domElement.innerHTML = `${++numInnerHtml}`
         }
     }, 1_000)
 
