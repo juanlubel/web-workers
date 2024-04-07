@@ -1,21 +1,31 @@
 import foorlop from './forloop.js'
 import sleep from "./core/sleep";
 
+
 function HandleClick() {
-    foorlop(200_000)
-    const totalElement = document.createElement('div')
-    totalElement.innerHTML = "10.000"
-    document.body.appendChild(totalElement)
+    const message = document.getElementById('message')
+    message.innerHTML = "I'm going to ..."
+    setTimeout(() => {
+        foorlop(500_000)
+        message.innerHTML = "500_000 Bored"
+    },0)
 }
 
 function HandleWorkerClick() {
     const worker = new Worker('workers/loop.worker.js')
-    worker.postMessage(200_000)
+    const message = document.getElementById('message')
+
+    message.innerHTML = "I'm not going to block"
+    const timeout = setTimeout(() => {
+        message.innerHTML = "You see?"
+    }, 3_000)
+    worker.postMessage(500_000)
     worker.onmessage = ({data}) => {
+        clearTimeout(timeout)
         console.log(data)
         console.log(`data from worker ${data}`)
         worker.terminate()
-
+        message.innerHTML = "500_000 Magic"
     }
 }
 
@@ -25,8 +35,8 @@ async function HandleCommunicateClick() {
     worker.onmessage = ({data}) => {
         console.log(data)
         console.log(`data from worker ${data[0]}`)
-        const alert = document.getElementById('alert')
-        alert.innerHTML = data[0]
+        const message = document.getElementById('message')
+        message.innerHTML = data[0]
         if (data[1])
             worker.terminate()
     }
@@ -42,7 +52,7 @@ async function HandleCommunicateClick() {
 function ButtonComponent() {
     const element = document.createElement('button')
     element.id = 'button'
-    element.innerHTML = 'Click Me!'
+    element.innerHTML = 'Bored button'
     element.onclick = HandleClick
 
     return element
@@ -51,7 +61,7 @@ function ButtonComponent() {
 function ButtonWorkerComponent() {
     const element = document.createElement('button')
     element.id = 'button-worker'
-    element.innerHTML = 'Click Me! (Worker)'
+    element.innerHTML = 'Magic Button'
     element.onclick = HandleWorkerClick
 
     return element
@@ -67,7 +77,7 @@ function ButtonCommunicateWorkerComponent() {
 }
 
 function CounterComponent() {
-    const element = document.createElement('div')
+    const element = document.createElement('h1')
     element.id = 'counter'
     element.innerHTML = '1'
 
@@ -82,17 +92,21 @@ function CounterComponent() {
     return element
 }
 
-function AlertComponent() {
-    const component = document.createElement('div')
-    component.id = 'alert'
+function MessageComponent() {
+    const component = document.createElement('p')
+    component.className = 'notice'
+    component.id = 'message'
 
     component.innerHTML = '0'
     return component
 }
 
+const header = document.getElementsByTagName('header')[0]
+const main = document.getElementsByTagName('main')[0]
+const footer = document.getElementsByTagName('footer')[0]
 
-document.body.appendChild(CounterComponent())
-document.body.appendChild(ButtonComponent())
-document.body.appendChild(ButtonWorkerComponent())
-document.body.appendChild(ButtonCommunicateWorkerComponent())
-document.body.appendChild(AlertComponent())
+header.appendChild(CounterComponent())
+main.appendChild(ButtonComponent())
+main.appendChild(ButtonWorkerComponent())
+// document.body.appendChild(ButtonCommunicateWorkerComponent())
+footer.appendChild(MessageComponent())
